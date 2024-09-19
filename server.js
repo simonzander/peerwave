@@ -1,6 +1,7 @@
 /**
  * Required modules
  */
+const config = require('./config/config');
 const express = require("express");
 const { randomUUID } = require('crypto');
 const http = require("http");
@@ -62,15 +63,15 @@ app.set("view engine", "pug");
 /**
  * Route for a meeting
  */
-app.get("/meet", (req, res) => {
-  res.render("meet");
+app.get("/meet", config.turnMiddleware, (req, res) => {
+  res.render("meet", { iceServers: JSON.stringify(res.locals.iceServers) });
 });
 
 /**
  * Route for hosting a room
  */
-app.get("/host", (req, res) => {
-  res.render("host");
+app.get("/host", config.turnMiddleware, (req, res) => {
+  res.render("host", { iceServers: JSON.stringify(res.locals.iceServers) });
 });
 
 /**
@@ -84,24 +85,24 @@ app.get("/", (req, res) => {
  * Route for viewing a room
  * @param {string} room - The ID of the room to view
  */
-app.get("/view/:room", ({ params: { room } }, res) => {
-  res.render("view", { room });
+app.get("/view/:room", config.turnMiddleware, ({ params: { room } }, res) => {
+  res.render("view", { room: room, iceServers: JSON.stringify(res.locals.iceServers) });
 });
 
 /**
  * Route for join a meeting room
  * @param {string} room - The ID of the room to meet
  */
-app.get("/meet/:room", ({ params: { room } }, res) => {
-  res.render("meet", { room });
+app.get("/meet/:room", config.turnMiddleware, ({ params: { room } }, res) => {
+  res.render("meet", { room: room, iceServers: res.locals.iceServers });
 });
 
 /**
  * Route for sharing a room
  * @param {string} room - The ID of the room to share
  */
-app.get("/share/:room", ({ params: { room } }, res) => {
-  res.render("share", { room });
+app.get("/share/:room", config.turnMiddleware, ({ params: { room } }, res) => {
+  res.render("share", { room: room, iceServers: res.locals.iceServers});
 });
 
 io.sockets.on("error", e => console.log(e));
